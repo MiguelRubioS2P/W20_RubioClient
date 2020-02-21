@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.Networking;
@@ -21,8 +22,12 @@ public class Logout : MonoBehaviour
 
     public void OnLogoutButtonClicked()
     {
+        //CerrarLogin();
         TryLogout();
+
     }
+
+    
 
     private void TryLogout()
     {
@@ -49,6 +54,37 @@ public class Logout : MonoBehaviour
             loginButton.interactable = true;
             logoutButton.interactable = false;
             playGameButton.interactable = false;
+        }
+    }
+
+    private void CerrarLogin()
+    {
+
+        LoginModel loginModel = new LoginModel();
+        loginModel.Id = player.Id;
+        loginModel.Name = player.name;
+
+        using (UnityWebRequest httpClient = new UnityWebRequest(player.HttpServerAddress + "api/Login/CerrarLogin", "POST"))
+        {
+            string bodyJson = JsonUtility.ToJson(loginModel);
+            byte[] bodyRaw = Encoding.UTF8.GetBytes(bodyJson);
+
+            httpClient.uploadHandler = new UploadHandlerRaw(bodyRaw);
+            httpClient.SetRequestHeader("Content-type", "application/json");
+            httpClient.SetRequestHeader("Authorization", "bearer " + player.Token);
+
+            httpClient.SendWebRequest();
+
+            if (httpClient.isNetworkError || httpClient.isHttpError)
+            {
+                throw new Exception("CerrarLogin > Error: " + httpClient.error);
+            }
+            else
+            {
+                Debug.Log("CerrarLogin > Info: " + httpClient.responseCode);
+            }
+
+            
         }
     }
 
