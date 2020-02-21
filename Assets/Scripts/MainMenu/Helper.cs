@@ -1,17 +1,18 @@
 ﻿using System;
 using System.Collections;
+using System.Text;
 using UnityEngine;
 using UnityEngine.Networking;
 
 public class Helper : MonoBehaviour
 {
-
+    // ????
     internal static IEnumerator InitializeToken(string email, string password)
     {
         Player player = FindObjectOfType<Player>();
         if (string.IsNullOrEmpty(player.Token))
         {
-            UnityWebRequest httpClient = new UnityWebRequest(player.HttpServerAddress + "/Token", "POST");
+            UnityWebRequest httpClient = new UnityWebRequest(player.HttpServerAddress + "Token", "POST");
 
             // application/x-www-form-urlencoded
             WWWForm dataToSend = new WWWForm();
@@ -45,10 +46,16 @@ public class Helper : MonoBehaviour
         Player player = FindObjectOfType<Player>();
         UnityWebRequest httpClient = new UnityWebRequest(player.HttpServerAddress + "api/Account/UserId", "GET");
 
-        httpClient.SetRequestHeader("Authorization", "bearer " + player.Token);
-        httpClient.SetRequestHeader("Accept", "application/json");
+        byte[] bodyRaw = Encoding.UTF8.GetBytes("Nothing");
+        httpClient.uploadHandler = new UploadHandlerRaw(bodyRaw);
 
         httpClient.downloadHandler = new DownloadHandlerBuffer();
+
+        httpClient.SetRequestHeader("Accept", "application/json");
+        httpClient.SetRequestHeader("Authorization", "bearer " + player.Token);
+        
+
+        
 
         yield return httpClient.SendWebRequest();
 
@@ -58,7 +65,7 @@ public class Helper : MonoBehaviour
         }
         else
         {
-            player.Id = httpClient.downloadHandler.text;
+            player.Id = httpClient.downloadHandler.text.Replace("\"","");
         }
 
         httpClient.Dispose();
@@ -67,7 +74,7 @@ public class Helper : MonoBehaviour
     internal static IEnumerator GetPlayerInfo()
     {
         Player player = FindObjectOfType<Player>();
-        UnityWebRequest httpClient = new UnityWebRequest(player.HttpServerAddress + "api/Player/GetPlayerInfo", "GET");
+        UnityWebRequest httpClient = new UnityWebRequest(player.HttpServerAddress + "api/Player/Info", "GET");
 
         httpClient.SetRequestHeader("Authorization", "bearer " + player.Token);
         httpClient.SetRequestHeader("Accept", "application/json");

@@ -3,7 +3,7 @@ using UnityEngine;
 
 public class Player : MonoBehaviour
 {
-    private const string _httpServerAddress = "";
+    private const string _httpServerAddress = "http://localhost:58357/";
     public string HttpServerAddress
     {
         get
@@ -45,6 +45,21 @@ public class Player : MonoBehaviour
     {
         get { return _email; }
         set { _email = value; }
+    }
+
+    void Awake()
+    {
+        //int count = FindObjectOfType<Player>();
+        int count = FindObjectsOfType<Player>().Length;
+        if (count > 1)
+        {
+            Destroy(gameObject);
+        }
+        else
+        {
+            DontDestroyOnLoad(gameObject);
+        }
+        //DontDestroyOnLoad(gameObject);
     }
 
 }

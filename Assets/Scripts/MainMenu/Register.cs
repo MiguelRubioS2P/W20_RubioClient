@@ -20,7 +20,7 @@ public class Register : MonoBehaviour
 
     public void OnRegisterButtonClick()
     {
-        RegisterNewUser();
+        StartCoroutine(RegisterNewUser());
     }
 
     private IEnumerator RegisterNewUser()
@@ -44,7 +44,7 @@ public class Register : MonoBehaviour
 
     private IEnumerator RegisterUser()
     {
-        UnityWebRequest httpClient = new UnityWebRequest(player.HttpServerAddress + "api/Account/Register");
+        UnityWebRequest httpClient = new UnityWebRequest(player.HttpServerAddress + "api/Account/Register","POST");
 
         AspNetUserRegister newUser = new AspNetUserRegister();
         newUser.Email = emailInputField.text;
@@ -61,10 +61,10 @@ public class Register : MonoBehaviour
 
         if (httpClient.isNetworkError || httpClient.isHttpError)
         {
-            throw new Exception("OnRegisterButtonClick: Error > " + httpClient.error);
+            throw new Exception("RegisterUser> Error: " + httpClient.error);
         }
 
-        messageBoardText.text += "\nOnRegisterButtonClick: " + httpClient.responseCode;
+        messageBoardText.text += "\nRegisterUser > Info: " + httpClient.responseCode;
 
         httpClient.Dispose();
     }
@@ -82,6 +82,7 @@ public class Register : MonoBehaviour
             string playerData = JsonUtility.ToJson(playerSerializable);
             byte[] bodyRaw = Encoding.UTF8.GetBytes(playerData);
             httpClient.uploadHandler = new UploadHandlerRaw(bodyRaw);
+            httpClient.downloadHandler = new DownloadHandlerBuffer();
             httpClient.SetRequestHeader("Content-type", "application/json");
             httpClient.SetRequestHeader("Authorization", "bearer " + player.Token);
 
